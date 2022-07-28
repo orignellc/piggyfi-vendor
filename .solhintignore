@@ -1,0 +1,8 @@
+node_modules
+frontend
+
+smart-contracts/node_modules
+smart-contracts/test
+smart-contracts/scripts
+.idea
+.vscode

@@ -1,0 +1,32 @@
+{
+  "name": "piggyfi-vendor",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "lint-sol": "solhint src/smartcontracts/**/*.sol",
+    "format": "prettier --write .",
+    "prepare": "husky install",
+    "deploy": "yarn workspace smart-contracts deploy"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.7.2",
+    "@openzeppelin/contracts-upgradeable": "^4.7.2"
+  },
+  "devDependencies": {
+    "husky": "^8.0.1",
+    "lint-staged": "^13.0.3",
+    "prettier": "^2.7.1",
+    "prettier-plugin-solidity": "^1.0.0-dev.23",
+    "solhint-plugin-prettier": "^0.0.5"
+  },
+    "workspaces": {
+    "packages": [
+      "src/*"
+    ]
+  },
+  "lint-staged": {
+    "**/*": "prettier --write --ignore-unknown"
+  }
+}
