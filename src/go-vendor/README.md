@@ -7,7 +7,7 @@ My development environment is on Mac OS, so this documentation assumes so for ev
 
 Good Luck!
 
-Run
+Run:
 
 ```azure
 go get github.com/celo-org/celo-blockchain@v1.5.8
@@ -30,7 +30,7 @@ I ran `brew install solidity` which showed I have `0.8.15` installed but not lin
 
 More details here https://docs.soliditylang.org/en/latest/installing-solidity.html.
 
-Run
+Run:
 
 ```
 //Replace star with version folder as seen on your PC
@@ -39,19 +39,19 @@ sudo go build -o celo-abigen cmd/abigen/main.go
 cp celo-abigen /usr/local/bin
 ```
 
-Run
+Run:
 
 ```azure
 -- In the root folder
  solc --abi src/smart-contracts/contracts/*.sol -o src/go-vendor/build --bin --include-path node_modules/ --base-path .
 ```
 
-Now let's generate go binding for our smart contracts
+Now let's generate go binding for our smart contracts, I have taken time to create a convenience script that is re-usable for every project
+
+Run:
 
 ```azure
--- In go-vendor folder
-celo-abigen --bin=./build/GlobalP2P.bin --abi=./build/GlobalP2P.abi --pkg=GlobalP2P --out=contracts/celo/GlobalP2P.go
-celo-abigen --bin=./build/WalletLogicV1.bin --abi=./build/WalletLogicV1.abi --pkg=WalletLogicV1 --out=contracts/celo/WalletLogicV1.go
-celo-abigen --bin=./build/WalletProxy.bin --abi=./build/WalletProxy.abi --pkg=WalletProxy --out=contracts/celo/WalletProxy.go
-celo-abigen --bin=./build/CommonWallet.bin --abi=./build/CommonWallet.abi --pkg=CommonWallet --out=contracts/celo/CommonWallet.go
+-- In the go-vendor/utils folder
+go run compile_contracts.go
 ```
+Confirm inside `go-vendor/contracts/celo` for the output bindings
