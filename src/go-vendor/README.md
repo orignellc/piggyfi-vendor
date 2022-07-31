@@ -54,4 +54,7 @@ Run:
 -- In the go-vendor/utils folder
 go run compile_contracts.go
 ```
-Confirm inside `go-vendor/contracts/celo` for the output bindings
+
+Confirm inside `go-vendor/contracts/celo` for the output bindings.
+
+**NB:** By default only two binding are generated, you can add more contracts on `line 17` of the script to generate its binding, e.g. `WalletProxy`  
