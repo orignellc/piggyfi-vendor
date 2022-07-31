@@ -8,7 +8,8 @@
     "lint-sol": "solhint src/smartcontracts/**/*.sol",
     "format": "prettier --write .",
     "prepare": "husky install",
-    "deploy": "yarn workspace smart-contracts deploy"
+    "deploy": "yarn workspace smart-contracts deploy",
+    "test": "yarn workspace smart-contracts test"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.7.2",
@@ -21,7 +22,7 @@
     "prettier-plugin-solidity": "^1.0.0-dev.23",
     "solhint-plugin-prettier": "^0.0.5"
   },
-    "workspaces": {
+  "workspaces": {
     "packages": [
       "src/*"
     ]
