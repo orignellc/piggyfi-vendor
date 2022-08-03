@@ -57,6 +57,12 @@ describe("Global P2P Wallet Creation", () => {
     );
   });
 
+  it("should revert deploy same uuid", async () => {
+    expect(this.globalp2p.deployWallet(this.uuid1)).to.be.revertedWith(
+      "GP:User exist"
+    );
+  });
+
   it("should revert deploy new wallet", async () => {
     this.uuid2 = "83608632-0f79-11ed-861d-0242ac120002";
     expect(

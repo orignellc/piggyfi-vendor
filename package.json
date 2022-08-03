@@ -8,6 +8,8 @@
     "lint-sol": "solhint src/smartcontracts/**/*.sol",
     "format": "prettier --write .",
     "prepare": "husky install",
+    "delpoy:local": "yarn workspace smart-contracts deploy:local",
+    "delpoy:alfajeros": "yarn workspace smart-contracts deploy:alfajeros",
     "deploy": "yarn workspace smart-contracts deploy",
     "test": "yarn workspace smart-contracts test"
   },

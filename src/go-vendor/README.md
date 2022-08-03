@@ -57,4 +57,22 @@ go run compile_contracts.go
 
 Confirm inside `go-vendor/contracts/celo` for the output bindings.
 
-**NB:** By default only two binding are generated, you can add more contracts on `line 17` of the script to generate its binding, e.g. `WalletProxy`  
+**NB:** By default only two binding are generated, you can add more contracts on `line 17` of the script to generate its binding, e.g. `WalletProxy`
+
+## Start Using
+
+Open a first terminal and start ganache cli.
+
+Run: 
+
+```azure
+ganache-cli
+```
+
+Open the second terminal in the project root dir (i.e. `piggyfi-vendor`) and deploy the contracts locally.
+
+Run :
+
+```
+yarn delpoy:locally
+```

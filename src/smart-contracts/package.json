@@ -5,6 +5,8 @@
   "license": "MIT",
   "scripts": {
     "deploy": "hardhat run scripts/deploy.js",
+    "deploy:local": "hardhat run scripts/deploy.js --network localhost",
+    "deploy:alfajeros": "hardhat run scripts/deploy.js --network alfajores",
     "test": "hardhat test"
   },
   "devDependencies": {

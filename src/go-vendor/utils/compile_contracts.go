@@ -14,7 +14,7 @@ const (
 )
 
 func main() {
-	contractNames := []string{"GlobalP2P", "WalletLogicV1"}
+	contractNames := []string{"GlobalP2P", "WalletLogicV1", "MockUSD"}
 
 	cmd := exec.Command("which","celo-abigen")
 	err := cmd.Run()
@@ -33,10 +33,15 @@ func main() {
 			fmt.Sprintf("--out=%s", bindingFilename),
 			)
 
-		err := cmd.Run()
-
+		err := cmd.Start()
+		if err != nil {
+			log.Fatalln(err)
+		}
 		log.Printf("Running... %s", cmd)
-
+		err =  cmd.Wait()
+		if err != nil {
+			log.Fatalln(err)
+		}
 		bindFile, err := ioutil.ReadFile(bindingFilename)
 		if err != nil {
 			log.Fatalln("Cannot open: ",bindingFilename, err)

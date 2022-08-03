@@ -1,25 +1,25 @@
 {
   "manifestVersion": "3.2",
   "admin": {
-    "address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
-    "txHash": "0x58e8e07c45d3f2eee0cd7005ee73b54748e19fa94a110044e8a1ada7cc27febe"
+    "address": "0x7945F3E7a6f2Ab25466c770F61b495695d080f92",
+    "txHash": "0x5f3fa8ed4f7c1a4692ed386a97edd990b59b39433b58966f56ddb6ad9669d174"
   },
   "proxies": [
     {
-      "address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
-      "txHash": "0x1f1cfc1415fd2393983a7c4e304f160410ae9c8390cdafa77df9a4c0dfc934e0",
+      "address": "0x23426419FE243A66deb350897303fFdC15C668D8",
+      "txHash": "0xd59937d29a41d93a91c944537b7dccb022eba6e3a698b61870e663b2621ee5e3",
       "kind": "transparent"
     },
     {
-      "address": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
-      "txHash": "0xf8247ae6571cdd75975d4105c328594dfbda59c79457889418949fa1f57193c4",
+      "address": "0xbCCa5a93FC1C4DF01f94Ca3ce86EC99f667159B3",
+      "txHash": "0x96bfde47b31d71c419df90d56385d6ccb15ffca0aed857b044a0f294eba8cb1e",
       "kind": "transparent"
     }
   ],
   "impls": {
-    "e2edd1ecfaa8fe18d999aea26ea53f9c0159a467a2817633d30c497de16c5632": {
-      "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-      "txHash": "0xd22384fec1f8f4103f78c82d1275731908b54b4ec940987442a273f73c201794",
+    "c9c724d0bdc8aa42b700596ac7b5ce63fd31dd786d67c5d1a73155fa4087704e": {
+      "address": "0x2DE19B7C64a2739ee8d758C6B00c72043e82343C",
+      "txHash": "0xdb48f65aa25f9e7164b54c73b42b33a8f0f2a7ef1a793ea8bacce1f725ec6ad8",
       "layout": {
         "storage": [
           {
@@ -80,44 +80,36 @@
             "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:116"
           },
           {
-            "label": "_status",
-            "offset": 0,
-            "slot": "151",
-            "type": "t_uint256",
-            "contract": "ReentrancyGuardUpgradeable",
-            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:38"
-          },
-          {
-            "label": "__gap",
-            "offset": 0,
-            "slot": "152",
-            "type": "t_array(t_uint256)49_storage",
-            "contract": "ReentrancyGuardUpgradeable",
-            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:74"
-          },
-          {
             "label": "walletLogic",
             "offset": 0,
-            "slot": "201",
+            "slot": "151",
             "type": "t_address",
             "contract": "GlobalP2P",
-            "src": "contracts/GlobalP2P.sol:17"
+            "src": "contracts/GlobalP2P.sol:12"
+          },
+          {
+            "label": "usdToken",
+            "offset": 0,
+            "slot": "152",
+            "type": "t_address",
+            "contract": "GlobalP2P",
+            "src": "contracts/GlobalP2P.sol:14"
           },
           {
             "label": "wallets",
             "offset": 0,
-            "slot": "202",
+            "slot": "153",
             "type": "t_mapping(t_string_memory_ptr,t_address)",
             "contract": "GlobalP2P",
-            "src": "contracts/GlobalP2P.sol:31"
+            "src": "contracts/GlobalP2P.sol:21"
           },
           {
             "label": "registry",
             "offset": 0,
-            "slot": "203",
+            "slot": "154",
             "type": "t_mapping(t_address,t_bool)",
             "contract": "GlobalP2P",
-            "src": "contracts/GlobalP2P.sol:33"
+            "src": "contracts/GlobalP2P.sol:23"
           }
         ],
         "types": {
@@ -163,9 +155,9 @@
         }
       }
     },
-    "c9c724d0bdc8aa42b700596ac7b5ce63fd31dd786d67c5d1a73155fa4087704e": {
-      "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
-      "txHash": "0x75953bc6c1d141bfbf4e4fe0e9701085081178fa3f40758952965b66f1b4ef9e",
+    "d2b13c8d16dd2b927190472bdf5388f9aae8413a6ac90f93b129546b5793fc15": {
+      "address": "0xEe6Aa05A9a2A335885B7DC2502387109A5a5c98b",
+      "txHash": "0x6b60632261225ee8e9159c96def1c7434abaa9224f4177baa37c7fe2474e4a8e",
       "layout": {
         "storage": [
           {
