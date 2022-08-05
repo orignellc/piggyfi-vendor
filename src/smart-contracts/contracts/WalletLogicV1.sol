@@ -6,115 +6,124 @@ import "./GlobalP2P.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract WalletLogicV1 is CommonWallet {
-    //@notice accumulated fees charged by gp2p on every transaction
-    uint256 public pendingFees;
+  //@notice accumulated fees charged by gp2p on every transaction
+  uint256 public pendingFees;
 
-    uint256 public frozenBalance;
+  uint256 public frozenBalance;
 
-    modifier onlyOwner() {
-        require(msg.sender == GlobalP2P(globalP2P).owner(), "WP: Unauthorized");
-        _;
-    }
+  modifier onlyOwner() {
+    require(msg.sender == GlobalP2P(globalP2P).owner(), "WL: Unauthorized");
+    _;
+  }
 
-    event newWithdrawal(
-        uint256 amount,
-        uint256 pendingFees,
-        uint256 witpendingFee,
-        address indexed to
-    );
+  modifier isNotPaused() {
+    require(!_isGlobalP2PPaused(), "WL: Paused");
+    _;
+  }
 
-    event newPurchase(
-        string quoteId,
-        uint256 amount,
-        uint256 pendingFees,
-        uint256 fee,
-        address customer
-    );
+  event newWithdrawal(
+    uint256 amount,
+    uint256 pendingFees,
+    uint256 witpendingFee,
+    address indexed to
+  );
 
-    event newFreeze(uint256 amount, uint256 newBalance, address wallet);
+  event newPurchase(
+    string quoteId,
+    uint256 amount,
+    uint256 pendingFees,
+    uint256 fee,
+    address customer
+  );
 
-    event newUnFreeze(uint256 amount, uint256 newBalance, address wallet);
+  event newFreeze(uint256 amount, uint256 newBalance, address wallet);
 
-    /**
-     * @notice contracts can withdraw some or all of liquidy added
-     * @param amount to witdraw
-     * @param withdrawalFee charged for thsi withdrawal in wei
-     * @param to address to withdraw funds to
-     */
-    function withdrawLiquidity(
-        uint256 amount,
-        uint256 withdrawalFee,
-        address payable to
-    ) public onlyOwner {
-        bool allowed = _allowedBalance() >= (amount + withdrawalFee);
-        require(allowed, "WL: Insufficient balance");
+  event newUnFreeze(uint256 amount, uint256 newBalance, address wallet);
 
-        pendingFees = 0;
+  /**
+   * @notice contracts can withdraw some or all of liquidy added
+   * @param amount to witdraw
+   * @param withdrawalFee charged for thsi withdrawal in wei
+   * @param to address to withdraw funds to
+   */
+  function withdrawLiquidity(
+    uint256 amount,
+    uint256 withdrawalFee,
+    address payable to
+  ) public onlyOwner isNotPaused {
+    bool allowed = _allowedBalance() >= (amount + withdrawalFee);
+    require(allowed, "WL: Insufficient balance");
 
-        _token().transfer(globalP2P, (pendingFees + withdrawalFee));
-        _token().transfer(to, amount);
+    pendingFees = 0;
 
-        emit newWithdrawal(amount, pendingFees, withdrawalFee, to);
-    }
+    _token().transfer(globalP2P, (pendingFees + withdrawalFee));
+    _token().transfer(to, amount);
 
-    /**
-     * @notice release funds to a customer
-     * @param amount to release
-     * @param fee charged for this transaction
-     * @param customer to send funds
-     * @param quoteId used to create quote offchain
-     */
-    function execTransaction(
-        uint256 amount,
-        uint256 fee,
-        address payable customer,
-        string memory quoteId
-    ) public onlyOwner {
-        require(_allowedBalance() > (amount + fee), "WL: Insufficient balance");
+    emit newWithdrawal(amount, pendingFees, withdrawalFee, to);
+  }
 
-        pendingFees += fee;
+  /**
+   * @notice release funds to a customer
+   * @param amount to release
+   * @param fee charged for this transaction
+   * @param customer to send funds
+   * @param quoteId used to create quote offchain
+   */
+  function execTransaction(
+    uint256 amount,
+    uint256 fee,
+    address payable customer,
+    string memory quoteId
+  ) public onlyOwner isNotPaused {
+    require(_allowedBalance() > (amount + fee), "WL: Insufficient balance");
 
-        _token().transfer(customer, amount);
+    pendingFees += fee;
 
-        emit newPurchase(quoteId, amount, pendingFees, fee, customer);
-    }
+    _token().transfer(customer, amount);
 
-    function freeze(uint256 amount) public onlyOwner {
-        frozenBalance += amount;
+    emit newPurchase(quoteId, amount, pendingFees, fee, customer);
+  }
 
-        emit newFreeze(amount, _allowedBalance(), address(this));
-    }
+  function freeze(uint256 amount) public onlyOwner isNotPaused {
+    frozenBalance += amount;
 
-    function unfreeze(uint256 amount) public onlyOwner {
-        frozenBalance -= amount;
+    emit newFreeze(amount, _allowedBalance(), address(this));
+  }
 
-        emit newUnFreeze(amount, _allowedBalance(), address(this));
-    }
+  function unfreeze(uint256 amount) public onlyOwner isNotPaused {
+    frozenBalance -= amount;
 
-    function _allowedBalance() internal view returns (uint256) {
-        return
-            _token().balanceOf(address(this)) - (frozenBalance + pendingFees);
-    }
+    emit newUnFreeze(amount, _allowedBalance(), address(this));
+  }
 
-    function spendableBalance() public view returns (uint256) {
-        return _allowedBalance();
-    }
+  function _allowedBalance() internal view returns (uint256) {
+    return _token().balanceOf(address(this)) - (frozenBalance + pendingFees);
+  }
 
-    function _token() internal view returns (IERC20) {
-        return IERC20(baseToken);
-    }
+  function spendableBalance() public view returns (uint256) {
+    return _allowedBalance();
+  }
 
-    /**
-     * @dev Avoid tokens usch as cUSD/cEUR/cREAL getting stuck in contracts
-     */
-    function withdrawEther(address payable to, uint256 amount)
-        public
-        onlyOwner
-    {
-        to.transfer(amount);
-    }
+  function _token() internal view returns (IERC20) {
+    return IERC20(baseToken);
+  }
 
-    function version() public virtual returns (string memory) {
-        return "v1.1.0";
-    }
+  function _isGlobalP2PPaused() internal view returns (bool) {
+    return GlobalP2P(globalP2P).paused();
+  }
+
+  /**
+   * @dev Avoid tokens usch as cUSD/cEUR/cREAL getting stuck in contracts
+   */
+  function withdrawEther(address payable to, uint256 amount)
+    public
+    onlyOwner
+    isNotPaused
+  {
+    to.transfer(amount);
+  }
+
+  function version() public virtual returns (string memory) {
+    return "v1.1.0";
+  }
 }

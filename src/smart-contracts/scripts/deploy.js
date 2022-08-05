@@ -25,9 +25,16 @@ async function main() {
 
   const gp2pContract = await gp2p.deployed();
 
+  const admin = await upgrades.erc1967.getAdminAddress(gp2pContract.address);
+  const impl = await upgrades.erc1967.getImplementationAddress(
+    gp2pContract.address
+  );
+
   console.table([
     { contract: "WalletLogicV1", address: logicContract.address },
     { contract: "GlobalP2P Proxy", address: gp2pContract.address },
+    { contract: "Admin", address: admin },
+    { contract: "Implementation", address: impl },
     { contract: "MockUSD", address: cUSD.address },
   ]);
 }

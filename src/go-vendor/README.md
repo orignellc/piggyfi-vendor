@@ -63,7 +63,7 @@ Confirm inside `go-vendor/contracts/celo` for the output bindings.
 
 Open a first terminal and start ganache cli.
 
-Run: 
+Run:
 
 ```azure
 ganache-cli
