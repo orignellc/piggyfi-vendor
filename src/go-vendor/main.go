@@ -15,6 +15,8 @@ import (
 	"github.com/slim12kg/piggyfi-vendor/src/go-vendor/contracts/celo"
 	"log"
 	"math/big"
+	"reflect"
+	"regexp"
 )
 
 const (
@@ -56,11 +58,11 @@ func main() {
 		log.Fatalln("Could not connect to client: ", err)
 	}
 
-	//gp2pInstance, err := globalP2PInstance(client)
-	//
-	//if err != nil {
-	//	log.Fatalln("Error getting instance: ",err)
-	//}
+	gp2pInstance, err := globalP2PInstance(client)
+
+	if err != nil {
+		log.Fatalln("Error getting instance: ",err)
+	}
 
 	//Step 1: Deploy Wallet for Agent
 	//contractABI, _ := celo.ParseGlobalP2PABI()
@@ -73,22 +75,22 @@ func main() {
 	//if err != nil {
 	//	log.Fatalln("Error getting instance: ",err)
 	//}
-	//
+
 	//decimals, err := cUSDInstance.Decimals(&bind.CallOpts{Context: context.Background()})
 	//
 	//if err != nil {
 	//	log.Fatalln("Cannot get mock usd instance: ", err)
 	//}
-	//
-	//agent := getAgentWalletAddress(gp2pInstance, uuid)
-	//
+
+	agent := getAgentWalletAddress(gp2pInstance, uuid2)
+
 	//toMint := convertUintToBigWei(1000, decimals)
 	//contractABI, _ := celo.ParseMockUSDABI()
 	//transactions, err := MintMockUSDToken(client, cUSDInstance, contractABI, agent, toMint)
 	//if err != nil {
 	//	log.Fatalln("An error occurred: ", err)
 	//}
-	//fmt.Println(transactions.Hash().Hex())
+	//fmt.Println("Funded Agent Wallet: ",transactions.Hash().Hex())
 
 	//listenToEvent(client, []string{mockUSDAddress}, cUSDInstance.TryParseLog)
 
@@ -132,6 +134,208 @@ func main() {
 
 	//Final Step: Keeps the program running and listen for contract events
 	//listenToEvent(client, []string{globalP2PAddress})
+
+	//Step: Approve an Order to Receiver address & Read Agent Spendable Balance
+	agentWallet, err := AgentWalletInstance(client,agent)
+	if err != nil {
+		log.Fatalln("Error getting instance: ",err)
+	}
+	//contractABI, err := celo.ParseWalletLogicV1ABI()
+	//if err != nil {
+	//	log.Fatalln("Error getting logic ABI: ",err)
+	//}
+	//
+	//
+	//send := convertUintToBigWei(200, decimals)
+	//fee := convertUintToBigWei(2, decimals)
+	//to := common.HexToAddress("0xadA32d1905DB6FF74F08801ac4016E56D3dF4375")
+	//quoteId := "20387149469590097920"
+	//transactionHash, err := approveOrder(agentWallet, contractABI, client, agent.Hex(), send, fee, to, quoteId)
+	//if err != nil {
+	//	log.Fatalln("Cannot approve transaction: ", err)
+	//}
+	//
+	//fmt.Println(transactionHash)
+
+	//Step: Freeze agent balance
+	//transactionHash, err := freezeBalance(agentWallet, contractABI, client, agent.Hex(), convertUintToBigWei(1000, decimals))
+	//
+	//fmt.Println("Froze balance: ",transactionHash)
+
+	//Step: Withdrawal Available Liquidity
+	//@dev Notice total and fee is equal allowable balance
+	//total := convertUintToBigWeiFloat(790.02, decimals)
+	//fee := convertUintToBigWeiFloat(7.98, decimals)
+	//to := common.HexToAddress("0xadA32d1905DB6FF74F08801ac4016E56D3dF4375")
+	//transactionHash, err := withdrawLiquidityBalance(agentWallet, contractABI, client, agent.Hex(), total, fee, to)
+	//
+	//fmt.Println("Withdrawal of liquidity balance: ", transactionHash)
+
+	//Step: UnFreeze agent balance
+	//transactionHash, err := unfreezeBalance(agentWallet, contractABI, client, agent.Hex(), convertUintToBigWei(1000, decimals))
+	//
+	//fmt.Println("Unfroze balance: ",transactionHash)
+
+	spendableBal, err := agentWallet.SpendableBalance(&bind.CallOpts{Context: context.Background()})
+
+	fmt.Println("Spendable Bal: ", spendableBal.String())
+}
+
+// IsValidAddress validate hex address
+func IsValidAddress(iaddress interface{}) bool {
+	re := regexp.MustCompile("^0x[0-9a-fA-F]{40}$")
+	switch v := iaddress.(type) {
+	case string:
+		return re.MatchString(v)
+	case common.Address:
+		return re.MatchString(v.Hex())
+	default:
+		return false
+	}
+}
+
+// IsZeroAddress validate if it's a 0 address
+func IsZeroAddress(iaddress interface{}) bool {
+	var address common.Address
+	switch v := iaddress.(type) {
+	case string:
+		address = common.HexToAddress(v)
+	case common.Address:
+		address = v
+	default:
+		return false
+	}
+
+	zeroAddressBytes := common.FromHex("0x0000000000000000000000000000000000000000")
+	addressBytes := address.Bytes()
+	return reflect.DeepEqual(addressBytes, zeroAddressBytes)
+}
+
+//if IsZeroAddress(agentWalletAddress) || !IsValidAddress(agentWalletInstance) {
+//log.Fatalln("Invalid Agent Address")
+//}
+
+// @Todo Check agent address passed is Valid
+func freezeBalance(
+	agentWalletInstance *celo.WalletLogicV1,
+	contractABI *abi.ABI,
+	client *ethclient.Client,
+	agentWalletAddress string,
+	amount *big.Int,
+	) (string, error) {
+
+	opt := transactOpt(*client, big.NewInt(0))
+
+	var params []interface{}
+	params = append(params, amount)
+
+	cAddress := common.HexToAddress(agentWalletAddress)
+
+	gasLimit := estimateGasUsage(*client, cAddress, *contractABI,"freeze", params)
+
+	opt.GasLimit = gasLimit
+
+	transaction, err := agentWalletInstance.Freeze(opt, amount)
+
+	if err != nil {
+		log.Fatalln("Error freezing order: ", err)
+	}
+
+	return transaction.Hash().Hex(), err
+}
+
+func unfreezeBalance(
+	agentWalletInstance *celo.WalletLogicV1,
+	contractABI *abi.ABI,
+	client *ethclient.Client,
+	agentWalletAddress string,
+	amount *big.Int,
+) (string, error) {
+
+	opt := transactOpt(*client, big.NewInt(0))
+
+	var params []interface{}
+	params = append(params, amount)
+
+	cAddress := common.HexToAddress(agentWalletAddress)
+
+	gasLimit := estimateGasUsage(*client, cAddress, *contractABI,"unfreeze", params)
+
+	opt.GasLimit = gasLimit
+
+	transaction, err := agentWalletInstance.Unfreeze(opt, amount)
+
+	if err != nil {
+		log.Fatalln("Error unfreezing order: ", err)
+	}
+
+	return transaction.Hash().Hex(), err
+}
+
+func withdrawLiquidityBalance(
+	agentWalletInstance *celo.WalletLogicV1,
+	contractABI *abi.ABI,
+	client *ethclient.Client,
+	agentWalletAddress string,
+	amount *big.Int,
+	fee *big.Int,
+	to common.Address,
+) (string, error) {
+
+	opt := transactOpt(*client, big.NewInt(0))
+
+	var params []interface{}
+	params = append(params, amount)
+	params = append(params, fee)
+	params = append(params, to)
+
+	cAddress := common.HexToAddress(agentWalletAddress)
+
+	gasLimit := estimateGasUsage(*client, cAddress, *contractABI,"withdrawLiquidity", params)
+
+	opt.GasLimit = gasLimit
+
+	transaction, err := agentWalletInstance.WithdrawLiquidity(opt, amount, fee, to)
+
+	if err != nil {
+		log.Fatalln("Error withdrawing liquidity balance: ", err)
+	}
+
+	return transaction.Hash().Hex(), err
+}
+
+func approveOrder(
+	agentWalletInstance *celo.WalletLogicV1,
+	contractABI *abi.ABI,
+	client *ethclient.Client,
+	agentWalletAddress string,
+	amount *big.Int,
+	fee *big.Int,
+	receiver common.Address,
+	quoteId	string,
+	) (string, error) {
+
+	opt := transactOpt(*client, big.NewInt(0))
+
+	var params []interface{}
+	params = append(params, amount)
+	params = append(params, fee)
+	params = append(params, receiver)
+	params = append(params, quoteId)
+
+	cAddress := common.HexToAddress(agentWalletAddress)
+
+	gasLimit := estimateGasUsage(*client, cAddress, *contractABI,"execTransaction", params)
+
+	opt.GasLimit = gasLimit
+
+	transaction, err := agentWalletInstance.ExecTransaction(opt, amount, fee, receiver, quoteId)
+
+	if err != nil {
+		log.Fatalln("Error approving order: ", err)
+	}
+
+	return transaction.Hash().Hex(), err
 }
 
 func convertUintToBigWei(amount int64, decimals uint8) *big.Int {
@@ -139,6 +343,21 @@ func convertUintToBigWei(amount int64, decimals uint8) *big.Int {
 	return new(big.Int).Mul(sum, big.NewInt(amount))
 }
 
+//@Todo Fix to handle Float properly
+func convertUintToBigWeiFloat(amount float64, decimals uint8) *big.Int {
+	sum := new(big.Int).Exp(big.NewInt(10), new(big.Int).SetUint64(uint64(decimals)), nil)
+	return new(big.Int).Mul(sum, big.NewInt(int64(amount)))
+}
+
+func AgentWalletInstance(client bind.ContractBackend, wallet common.Address) (*celo.WalletLogicV1, error) {
+	agentWallet , err := celo.NewWalletLogicV1(wallet, client)
+
+	if err != nil {
+		log.Fatalln("")
+	}
+
+	return agentWallet, err
+}
 
 func listenToEvent(
 	client *ethclient.Client,
@@ -220,7 +439,7 @@ func estimateGasUsage(
 	}
 
 	gasLimit, err := client.EstimateGas(context.Background(), callMsg)
-	fmt.Println("Gas Limit: ", gasLimit)
+	fmt.Println("Max Transaction Gas: ", gasLimit)
 	if err != nil {
 		log.Fatalln("Could not estimate gas: ", err)
 	}
@@ -251,8 +470,6 @@ func PauseGP2P(gp2pInstance *celo.GlobalP2P, contractABI *abi.ABI, client *ethcl
 		log.Fatalln("Cannot pause GP2P: ", err)
 	}
 
-	fmt.Printf("%+v",transaction)
-	fmt.Println()
 	return transaction.Hash().Hex(), err
 }
 
@@ -280,29 +497,22 @@ func UnpauseGP2P(gp2pInstance *celo.GlobalP2P, contractABI *abi.ABI, client *eth
 func MintMockUSDToken(client *ethclient.Client, cUsd *celo.MockUSD, contractABI *abi.ABI, receiver common.Address, amount *big.Int) (*types.Transaction, error) {
 	opt := transactOpt(*client, big.NewInt(0))
 
-	//var params []interface{}
+	var params []interface{}
 
-	//paddedAddress := common.LeftPadBytes(receiver.Bytes(), 32)
-	//
-	//params = append(params, paddedAddress...)
-	//
-	//paddedAmount := common.LeftPadBytes(amount.Bytes(), 32)
-	//
-	//params = append(params, paddedAmount...)
-	//
-	//cAddress := common.HexToAddress(globalP2PAddress)
-	//
-	//
-	//gasLimit := estimateGasUsage(*client, cAddress, *contractABI,"mint", params)
-	//
-	//opt.GasLimit = gasLimit
+	params = append(params,receiver)
+
+	params = append(params, amount)
+
+	cAddress := common.HexToAddress(mockUSDAddress)
+
+	gasLimit := estimateGasUsage(*client, cAddress, *contractABI,"mint", params)
+
+	opt.GasLimit = gasLimit
 
 	transaction, err := cUsd.Mint(opt, receiver, amount)
 	if err != nil {
 		log.Fatalln("Cannot mint tokens for ", receiver.String()," ", err)
 	}
-
-	fmt.Printf("%+v",transaction)
 
 	return transaction, err
 }

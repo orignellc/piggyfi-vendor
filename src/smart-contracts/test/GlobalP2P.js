@@ -11,8 +11,6 @@ before(async () => {
 
   await globalp2p.initialize(walletLogic.address, cUSD.address);
 
-  console.log("GP2P Wallet addres: ", globalp2p.address);
-
   this.owner = owner;
   this.walletLogic = walletLogic;
   this.globalp2p = globalp2p;
@@ -28,8 +26,7 @@ describe("Global P2P Wallet Creation", () => {
     expect(this.walletLogic.address).to.equal(logicAddress);
   });
 
-  it.only("should pause all transaction", async () => {
-    // console.log("OWNER IS: ", await this.globalp2p.owner());
+  it("should pause all transaction", async () => {
     const trx = await this.globalp2p.pause();
 
     console.log(trx);
