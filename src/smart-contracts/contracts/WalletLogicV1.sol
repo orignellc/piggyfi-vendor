@@ -85,14 +85,14 @@ contract WalletLogicV1 is CommonWallet {
     }
 
     function freeze(uint256 amount) public onlyOwner isNotPaused {
-        require(_allowedBalance() >= amount,"WL: Insufficient balance");
+        require(_allowedBalance() >= amount, "WL: Insufficient balance");
         frozenBalance += amount;
 
         emit newFreeze(amount, _allowedBalance(), address(this));
     }
 
     function unfreeze(uint256 amount) public onlyOwner isNotPaused {
-        require(frozenBalance >= amount,"WL: Insufficient freeze");
+        require(frozenBalance >= amount, "WL: Insufficient freeze");
         frozenBalance -= amount;
 
         emit newUnFreeze(amount, _allowedBalance(), address(this));

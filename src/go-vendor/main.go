@@ -25,7 +25,7 @@ const (
 	uuid2 = "83608ac4-0f79-11ed-861d-0242ac120002"
 	globalP2PAddress = "0xDAae917F4B3990bf132Da4AefDAbC880f192d19D"
 	mockUSDAddress = "0x0d0702A42F7d62F4dBd43FfeCc409A273Ea01844"
-	signerPrivateKey = "" //Use env to load this
+	signerPrivateKey = "" //@Todo Use env to load this
 )
 
 // ┌─────────┬───────────────────┬──────────────────────────────────────────────┐
