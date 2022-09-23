@@ -46,7 +46,8 @@ Run:
  solc --abi src/smart-contracts/contracts/*.sol -o src/go-vendor/build --bin --include-path node_modules/ --base-path .
 ```
 
-Now let's generate go binding for our smart contracts, I have taken time to create a convenience script that is re-usable for every project
+Now let's generate go binding for our smart contracts,
+I have taken time to create a convenience script that is re-usable for every project
 
 Run:
 

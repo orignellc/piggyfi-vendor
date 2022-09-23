@@ -20,7 +20,7 @@ import (
 )
 
 const (
-	rpcUrl =  "wss://alfajores-forno.celo-testnet.org/ws"	//"https://alfajores-forno.celo-testnet.org"
+	rpcUrl =  "wss://alfajores-forno.celo-testnet.org/ws"	//wss://alfajores-forno.celo-testnet.org/ws //"https://alfajores-forno.celo-testnet.org"
 	uuid = "83608880-0f79-11ed-861d-0242ac120002"
 	uuid2 = "83608ac4-0f79-11ed-861d-0242ac120002"
 	globalP2PAddress = "0xDAae917F4B3990bf132Da4AefDAbC880f192d19D"
@@ -58,123 +58,179 @@ func main() {
 		log.Fatalln("Could not connect to client: ", err)
 	}
 
+	privateKey, err := crypto.HexToECDSA("11abea4b2e938d918de8ec64b21ff3908ca82f615cbb5d91ee656c49c2ae3f5e")
+
+	if err != nil {
+		log.Fatalf("invalid private key: %v", err)
+	}
+
+	to := common.HexToAddress("0x72DD9B482d3266e5E38cAC25265429f7c47FCC69")
+
+	balance, err := client.BalanceAt(context.Background(), to, nil)
+
+	cId, _ := client.NetworkID(context.Background());
+
+	fmt.Println("Chain: ",cId)
+
+	suggestedGasPrice, err := client.SuggestGasPrice(context.Background())
+	if err != nil {
+		log.Fatalln("Cannot get gas price", err)
+	}
+
+	suggestedGasTipCap, err := client.SuggestGasTipCap(context.Background())
+	if err != nil {
+		log.Fatalln("suggestedGasTipCap", err)
+	}
+
+	chainId := big.NewInt(31337)
+
+	nonce, err := client.PendingNonceAt(context.Background(), to)
+	if err != nil {
+		log.Fatalln("Cannot get nonce", err)
+	}
+
+
+	trx, err := types.SignNewTx(privateKey, types.LatestSignerForChainID(big.NewInt(31337)), &types.LegacyTx{
+		Nonce: nonce,
+		To: &to,
+		Value:    convertUintToBigWei(8,18),
+		GasPrice: suggestedGasPrice,
+		Gas:      22000,
+	})
+
+	if err != nil {
+		log.Fatalln("Error sending transaction: ", err)
+	}
+
+	//fmt.Printf("%+v", trx)
+
+	err = client.SendTransaction(context.Background(), trx)
+
+	if err != nil {
+		log.Fatalln("Error sending transaction: ", err)
+	}
+
+	fmt.Print(trx.Hash().Hex())
 	gp2pInstance, err := globalP2PInstance(client)
 
 	if err != nil {
 		log.Fatalln("Error getting instance: ",err)
 	}
 
+	id, err := client.NetworkID(context.Background())
+
+	fmt.Println(id)
 	//Step 1: Deploy Wallet for Agent
-	//contractABI, _ := celo.ParseGlobalP2PABI()
-	//transactionHash, err := createAgentWallet(gp2pInstance, contractABI, client, uuid2)
-	//
-	//fmt.Println("Transaction hash to track agent wallet creation: ", transactionHash)
+	contractABI, _ := celo.ParseGlobalP2PABI()
+	transactionHash, err := createAgentWallet(gp2pInstance, contractABI, client, uuid2)
+
+	fmt.Println("Transaction hash to track agent wallet creation: ", transactionHash)
 
 	//Step 2: Mint 1000 MockUSD token for Agent address
-	//cUSDInstance, err := MockUSDInstance(client)
-	//if err != nil {
-	//	log.Fatalln("Error getting instance: ",err)
-	//}
+	cUSDInstance, err := MockUSDInstance(client)
+	if err != nil {
+		log.Fatalln("Error getting instance: ",err)
+	}
 
-	//decimals, err := cUSDInstance.Decimals(&bind.CallOpts{Context: context.Background()})
-	//
-	//if err != nil {
-	//	log.Fatalln("Cannot get mock usd instance: ", err)
-	//}
+	decimals, err := cUSDInstance.Decimals(&bind.CallOpts{Context: context.Background()})
+
+	if err != nil {
+		log.Fatalln("Cannot get mock usd instance: ", err)
+	}
 
 	agent := getAgentWalletAddress(gp2pInstance, uuid2)
 
-	//toMint := convertUintToBigWei(1000, decimals)
-	//contractABI, _ := celo.ParseMockUSDABI()
-	//transactions, err := MintMockUSDToken(client, cUSDInstance, contractABI, agent, toMint)
-	//if err != nil {
-	//	log.Fatalln("An error occurred: ", err)
-	//}
-	//fmt.Println("Funded Agent Wallet: ",transactions.Hash().Hex())
+	toMint := convertUintToBigWei(1000, decimals)
+	contractABI, _ := celo.ParseMockUSDABI()
+	transactions, err := MintMockUSDToken(client, cUSDInstance, contractABI, agent, toMint)
+	if err != nil {
+		log.Fatalln("An error occurred: ", err)
+	}
+	fmt.Println("Funded Agent Wallet: ",transactions.Hash().Hex())
 
-	//listenToEvent(client, []string{mockUSDAddress}, cUSDInstance.TryParseLog)
+	listenToEvent(client, []string{mockUSDAddress}, cUSDInstance.TryParseLog)
 
 
 	//Step : Set new Logic Address
 	//First Pause transaction, only when you pause can we update logic
-	//contractABI, _ := celo.ParseGlobalP2PABI()
-	//paused, err := gp2pInstance.Paused(&bind.CallOpts{Context: context.Background()})
-	//if err != nil {
-	//	log.Fatalln("Could not check paused: ", err)
-	//}
-	//
-	//if !paused {
-	//	transactionHash, err := PauseGP2P(gp2pInstance, contractABI, client)
-	//	if err != nil {
-	//		log.Fatalln("Could not pause gp2p, reason: ", err)
-	//	}
-	//	fmt.Println("Pause transaction hash: ", transactionHash)
-	//}
+	contractABI, _ := celo.ParseGlobalP2PABI()
+	paused, err := gp2pInstance.Paused(&bind.CallOpts{Context: context.Background()})
+	if err != nil {
+		log.Fatalln("Could not check paused: ", err)
+	}
+
+	if !paused {
+		transactionHash, err := PauseGP2P(gp2pInstance, contractABI, client)
+		if err != nil {
+			log.Fatalln("Could not pause gp2p, reason: ", err)
+		}
+		fmt.Println("Pause transaction hash: ", transactionHash)
+	}
 
 	//Step : Set to the same address, since we don't have an upgrade
-	//callOpt := &bind.CallOpts{Context: context.Background()}
-	//logic, err := gp2pInstance.WalletLogic(callOpt)
-	//
-	//transactionHash, err := setNewLogicAddress(gp2pInstance, client, logic)
-	//
-	//if err != nil {
-	//	log.Fatalln("Could not update logic: ", logic)
-	//}
-	//
-	//fmt.Println(transactionHash)
+	callOpt := &bind.CallOpts{Context: context.Background()}
+	logic, err := gp2pInstance.WalletLogic(callOpt)
 
-	//Step : Unpause to perform other transactions
-	//contractABI, _ := celo.ParseGlobalP2PABI()
-	//
-	//transactionHash, err := UnpauseGP2P(gp2pInstance, contractABI, client)
-	//if err != nil {
-	//	log.Fatalln("Could not unpause gp2p, reason: ", err)
-	//}
-	//fmt.Println("Pause transaction hash: ", transactionHash)
+	transactionHash, err := setNewLogicAddress(gp2pInstance, client, logic)
 
-	//Final Step: Keeps the program running and listen for contract events
-	//listenToEvent(client, []string{globalP2PAddress})
+	if err != nil {
+		log.Fatalln("Could not update logic: ", logic)
+	}
 
-	//Step: Approve an Order to Receiver address & Read Agent Spendable Balance
+	fmt.Println(transactionHash)
+
+	Step : Unpause to perform other transactions
+	contractABI, _ := celo.ParseGlobalP2PABI()
+
+	transactionHash, err := UnpauseGP2P(gp2pInstance, contractABI, client)
+	if err != nil {
+		log.Fatalln("Could not unpause gp2p, reason: ", err)
+	}
+	fmt.Println("Pause transaction hash: ", transactionHash)
+
+	Final Step: Keeps the program running and listen for contract events
+	listenToEvent(client, []string{globalP2PAddress})
+
+	Step: Approve an Order to Receiver address & Read Agent Spendable Balance
 	agentWallet, err := AgentWalletInstance(client,agent)
 	if err != nil {
 		log.Fatalln("Error getting instance: ",err)
 	}
-	//contractABI, err := celo.ParseWalletLogicV1ABI()
-	//if err != nil {
-	//	log.Fatalln("Error getting logic ABI: ",err)
-	//}
-	//
-	//
-	//send := convertUintToBigWei(200, decimals)
-	//fee := convertUintToBigWei(2, decimals)
-	//to := common.HexToAddress("0xadA32d1905DB6FF74F08801ac4016E56D3dF4375")
-	//quoteId := "20387149469590097920"
-	//transactionHash, err := approveOrder(agentWallet, contractABI, client, agent.Hex(), send, fee, to, quoteId)
-	//if err != nil {
-	//	log.Fatalln("Cannot approve transaction: ", err)
-	//}
-	//
-	//fmt.Println(transactionHash)
+	contractABI, err := celo.ParseWalletLogicV1ABI()
+	if err != nil {
+		log.Fatalln("Error getting logic ABI: ",err)
+	}
+
+
+	send := convertUintToBigWei(200, decimals)
+	fee := convertUintToBigWei(2, decimals)
+	to := common.HexToAddress("0xadA32d1905DB6FF74F08801ac4016E56D3dF4375")
+	quoteId := "20387149469590097920"
+	transactionHash, err := approveOrder(agentWallet, contractABI, client, agent.Hex(), send, fee, to, quoteId)
+	if err != nil {
+		log.Fatalln("Cannot approve transaction: ", err)
+	}
+
+	fmt.Println(transactionHash)
 
 	//Step: Freeze agent balance
-	//transactionHash, err := freezeBalance(agentWallet, contractABI, client, agent.Hex(), convertUintToBigWei(1000, decimals))
-	//
-	//fmt.Println("Froze balance: ",transactionHash)
+	transactionHash, err := freezeBalance(agentWallet, contractABI, client, agent.Hex(), convertUintToBigWei(1000, decimals))
+
+	fmt.Println("Froze balance: ",transactionHash)
 
 	//Step: Withdrawal Available Liquidity
 	//@dev Notice total and fee is equal allowable balance
-	//total := convertUintToBigWeiFloat(790.02, decimals)
-	//fee := convertUintToBigWeiFloat(7.98, decimals)
-	//to := common.HexToAddress("0xadA32d1905DB6FF74F08801ac4016E56D3dF4375")
-	//transactionHash, err := withdrawLiquidityBalance(agentWallet, contractABI, client, agent.Hex(), total, fee, to)
-	//
-	//fmt.Println("Withdrawal of liquidity balance: ", transactionHash)
+	total := convertUintToBigWeiFloat(790.02, decimals)
+	fee := convertUintToBigWeiFloat(7.98, decimals)
+	to := common.HexToAddress("0xadA32d1905DB6FF74F08801ac4016E56D3dF4375")
+	transactionHash, err := withdrawLiquidityBalance(agentWallet, contractABI, client, agent.Hex(), total, fee, to)
+
+	fmt.Println("Withdrawal of liquidity balance: ", transactionHash)
 
 	//Step: UnFreeze agent balance
-	//transactionHash, err := unfreezeBalance(agentWallet, contractABI, client, agent.Hex(), convertUintToBigWei(1000, decimals))
-	//
-	//fmt.Println("Unfroze balance: ",transactionHash)
+	transactionHash, err := unfreezeBalance(agentWallet, contractABI, client, agent.Hex(), convertUintToBigWei(1000, decimals))
+
+	fmt.Println("Unfroze balance: ",transactionHash)
 
 	spendableBal, err := agentWallet.SpendableBalance(&bind.CallOpts{Context: context.Background()})
 

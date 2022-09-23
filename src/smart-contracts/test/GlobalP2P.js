@@ -1,25 +1,37 @@
 const { expect } = require("chai");
 
 before(async () => {
-  const [owner, addressOne, addressTwo] = await ethers.getSigners();
-  const WalletLogicV1 = await ethers.getContractFactory("WalletLogicV1");
-  const walletLogic = await WalletLogicV1.deploy();
-  const GlobalP2P = await ethers.getContractFactory("GlobalP2P");
-  const globalp2p = await GlobalP2P.deploy();
-  const MockUSD = await ethers.getContractFactory("MockUSD");
-  const cUSD = await MockUSD.deploy();
+  const [_, owner, addressOne, addressTwo] = await ethers.getSigners();
+  // const WalletLogicV1 = await ethers.getContractFactory("WalletLogicV1");
+  // const walletLogic = await WalletLogicV1.deploy();
+  // const GlobalP2P = await ethers.getContractFactory("GlobalP2P");
+  // const globalp2p = await GlobalP2P.deploy();
+  // const MockUSD = await ethers.getContractFactory("MockUSD");
+  // const cUSD = await MockUSD.deploy();
 
-  await globalp2p.initialize(walletLogic.address, cUSD.address);
+  // await globalp2p.initialize(walletLogic.address, cUSD.address);
 
   this.owner = owner;
-  this.walletLogic = walletLogic;
-  this.globalp2p = globalp2p;
-  this.addressOne = addressOne;
-  this.addressTwo = addressTwo;
-  this.cUSD = cUSD;
+  // this.walletLogic = walletLogic;
+  // this.globalp2p = globalp2p;
+  // this.addressOne = addressOne;
+  // this.addressTwo = addressTwo;
+  // this.cUSD = cUSD;
 });
 
 describe("Global P2P Wallet Creation", () => {
+  it.only("Send Funds", async () => {
+    trx = await this.owner.sendTransaction({
+      to: "0x2195d5D9A6144dC9A698FdC222aE9b7dC6226A9a",
+      value: ethers.utils.parseUnits("20"),
+    });
+
+    console.log(trx);
+    bal = await this.owner.getBalance();
+    console.log(bal.toString());
+    // console.log(ethers.utils.parseUnits(bal.toString()));
+  });
+
   it("should confirm wallet logic is accurate", async () => {
     const logicAddress = await this.globalp2p.walletLogic();
 

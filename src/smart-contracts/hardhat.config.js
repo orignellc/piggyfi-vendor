@@ -28,6 +28,27 @@ module.exports = {
     ],
   },
   networks: {
+    hardhat: {
+      accounts: {
+        mnemonic:
+          "leg hamster soccer evoke candy garlic penalty novel feed they angle never",
+        path: "m/44'/60'/0'/0",
+        initialIndex: 0,
+        count: 20,
+        passphrase: "",
+      },
+    },
+    localhost: {
+      url: "http://127.0.0.1:8080",
+      accounts: {
+        mnemonic:
+          "leg hamster soccer evoke candy garlic penalty novel feed they angle never",
+        path: "m/44'/60'/0'/0",
+        initialIndex: 0,
+        count: 20,
+        passphrase: "",
+      },
+    },
     alfajores: {
       url: "https://alfajores-forno.celo-testnet.org",
       accounts: [

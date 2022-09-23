@@ -2,5 +2,5 @@
 . "$(dirname -- "$0")/_/husky.sh"
 
 # npx lint-staged
-yarn lint-sol
-yarn format
+#yarn lint-sol
+#yarn format
