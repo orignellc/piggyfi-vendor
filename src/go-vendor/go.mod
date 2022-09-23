@@ -1,4 +1,4 @@
-module github.com/slim12kg/piggyfi-vendor/src/go-vendor
+module github.com/orignellc/piggyfi-vendor/src/go-vendor
 
 go 1.18
 
