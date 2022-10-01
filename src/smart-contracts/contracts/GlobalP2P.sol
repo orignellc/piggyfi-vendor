@@ -41,8 +41,12 @@ contract GlobalP2P is Initializable, OwnableUpgradeable, PausableUpgradeable {
         usdToken = _usd;
     }
 
+    function setUsdToken(address _usdToken) public onlyOwner {
+        usdToken = _usdToken;
+    }
+
     /*
-     * @dev Change address of wallet implementayion to a new one
+     * @dev Change address of wallet implementation to a new one
      * @param _walletLogic address of contracts
      **/
     function updateWalletLogic(address _walletLogic)
@@ -62,7 +66,7 @@ contract GlobalP2P is Initializable, OwnableUpgradeable, PausableUpgradeable {
         whenNotPaused
         returns (address)
     {
-        require(bytes(uuid).length >= 32, "GP:Invalid UUID");
+        require(bytes(uuid).length >= 24, "GP:Invalid UUID");
         require(wallets[uuid] == address(0x0), "GP:User exist");
         address wallet = address(new WalletProxy(address(this), usdToken));
 

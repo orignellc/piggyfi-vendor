@@ -20,7 +20,7 @@ async function main() {
   const GlobalP2P = await ethers.getContractFactory("GlobalP2P");
   const gp2p = await upgrades.deployProxy(GlobalP2P, [
     logicContract.address,
-    cUSD.address,
+    "0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1", //cUSD on Alfajores
   ]);
 
   const gp2pContract = await gp2p.deployed();
@@ -45,3 +45,14 @@ main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
 });
+
+
+// ┌─────────┬───────────────────┬──────────────────────────────────────────────┐
+// │ (index) │     contract      │                   address                    │
+// ├─────────┼───────────────────┼──────────────────────────────────────────────┤
+// │    0    │  'WalletLogicV1'  │ '0xadf1446E115Cdf824eBdFD185De50dA84c6878e3' │
+// │    1    │ 'GlobalP2P Proxy' │ '0xfD603E169066aB60eeb34343066e0badfe014C64' │
+// │    2    │      'Admin'      │ '0x56921Eba54DB2d70A32B5186153680d01bb6f0a2' │
+// │    3    │ 'Implementation'  │ '0xF8C90A634a1674CcF5Cc73e44Deb4bab7A741ce3' │
+// │    4    │     'MockUSD'     │ '0x625CCf6B18bEF0C62c63BeE34D5862e8fB2a260B' │
+// └─────────┴───────────────────┴──────────────────────────────────────────────┘

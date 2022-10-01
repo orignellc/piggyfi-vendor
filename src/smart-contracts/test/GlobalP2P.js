@@ -2,21 +2,21 @@ const { expect } = require("chai");
 
 before(async () => {
   const [_, owner, addressOne, addressTwo] = await ethers.getSigners();
-  // const WalletLogicV1 = await ethers.getContractFactory("WalletLogicV1");
-  // const walletLogic = await WalletLogicV1.deploy();
-  // const GlobalP2P = await ethers.getContractFactory("GlobalP2P");
-  // const globalp2p = await GlobalP2P.deploy();
-  // const MockUSD = await ethers.getContractFactory("MockUSD");
-  // const cUSD = await MockUSD.deploy();
+  const WalletLogicV1 = await ethers.getContractFactory("WalletLogicV1");
+  const walletLogic = await WalletLogicV1.deploy();
+  const GlobalP2P = await ethers.getContractFactory("GlobalP2P");
+  const globalp2p = await GlobalP2P.deploy();
+  const MockUSD = await ethers.getContractFactory("MockUSD");
+  const cUSD = await MockUSD.deploy();
 
-  // await globalp2p.initialize(walletLogic.address, cUSD.address);
+  await globalp2p.initialize(walletLogic.address, cUSD.address);
 
   this.owner = owner;
-  // this.walletLogic = walletLogic;
-  // this.globalp2p = globalp2p;
-  // this.addressOne = addressOne;
-  // this.addressTwo = addressTwo;
-  // this.cUSD = cUSD;
+  this.walletLogic = walletLogic;
+  this.globalp2p = globalp2p;
+  this.addressOne = addressOne;
+  this.addressTwo = addressTwo;
+  this.cUSD = cUSD;
 });
 
 describe("Global P2P Wallet Creation", () => {

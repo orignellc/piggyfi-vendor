@@ -56,6 +56,13 @@ module.exports = {
       ],
       chainId: 44787,
     },
+    baobab: {
+      url: "https://api.baobab.klaytn.net:8651/",
+      accounts: [
+        "bef9e118a31a0af39585d7e82cae42a7393476d792e36e183a1227f9e3815c50",
+      ],
+      chainId: 1001,
+    },
   },
   etherscan: {
     apiKey: {
