@@ -10,24 +10,24 @@ import (
 
 const (
 	buildDir  = "../build/"
-	targetDir = "../contracts/celo/"
+	targetDir = "../contracts/klaytn/"
 )
 
 func main() {
 	contractNames := []string{"GlobalP2P", "WalletLogicV1", "MockUSD"}
 
-	cmd := exec.Command("which","celo-abigen")
+	cmd := exec.Command("which","klay-abigen")
 	err := cmd.Run()
 
 	if err != nil {
-		log.Fatal("celo-abigen is not a command: ",err)
+		log.Fatal("klay-abigen is not a command: ",err)
 	}
 
 	for _, contractName := range contractNames {
 		buildFilename := buildDir + contractName
 		bindingFilename := targetDir + contractName + ".go"
 		cmd = exec.Command(
-			"celo-abigen", fmt.Sprintf("--bin=%s.bin", buildFilename),
+			"klay-abigen", fmt.Sprintf("--bin=%s.bin", buildFilename),
 			fmt.Sprintf("--abi=%s.abi", buildFilename),
 			fmt.Sprintf("--pkg=%s", contractName),
 			fmt.Sprintf("--out=%s", bindingFilename),
@@ -47,7 +47,7 @@ func main() {
 			log.Fatalln("Cannot open: ",bindingFilename, err)
 		}
 
-		fileOutput := strings.Replace(string(bindFile), "package " + contractName, "package celo", 1)
+		fileOutput := strings.Replace(string(bindFile), "package " + contractName, "package klaytn", 1)
 		err = ioutil.WriteFile(bindingFilename, []byte(fileOutput), 0644)
 		if err != nil {
 			log.Fatalln("Cannot write to: ",bindingFilename,err)

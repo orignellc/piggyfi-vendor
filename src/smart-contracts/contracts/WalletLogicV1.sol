@@ -115,15 +115,23 @@ contract WalletLogicV1 is CommonWallet {
         return GlobalP2P(globalP2P).paused();
     }
 
-    /**
-     * @dev Avoid tokens usch as cUSD/cEUR/cREAL getting stuck in contracts
-     */
     function withdrawEther(address payable to, uint256 amount)
         public
         onlyOwner
         isNotPaused
     {
         to.transfer(amount);
+    }
+
+    /**
+     * @dev Avoid tokens getting stuck in contracts
+     */
+    function withdrawERC20(address _tokenAddress, address to, uint256 amount)
+    public
+    onlyOwner
+    isNotPaused
+    {
+        IERC20(_tokenAddress).transfer(to, amount);
     }
 
     function version() public virtual returns (string memory) {

@@ -11,6 +11,10 @@ Run:
 
 ```azure
 go get github.com/celo-org/celo-blockchain@v1.5.8
+
+//OR
+
+go get github.com/klaytn/klaytn
 ```
 
 Running without tagging version give issues.
@@ -34,9 +38,14 @@ Run:
 
 ```
 //Replace star with version folder as seen on your PC
-cd $GOPATH/pkg/mod/github.com/celo-org//celo-blockchain@v*.*.*
+cd $GOPATH/pkg/mod/github.com/celo-org/celo-blockchain@v*.*.*
 sudo go build -o celo-abigen cmd/abigen/main.go
 cp celo-abigen /usr/local/bin
+
+//OR
+cd $GOPATH/pkg/mod/github.com/klaytn/klaytn@v1.9.1/
+sudo go build -o klay-abigen cmd/abigen/main.go
+cp klay-abigen /usr/local/bin
 ```
 
 Run:
